@@ -355,7 +355,6 @@ def Member_search() :
         def out() :
             MsgBox = messagebox.askquestion ('탈퇴 확인','탈퇴하시겠습니까??')
             if MsgBox == 'yes':
-                print((User['User_phone'] == phonetext2.get()) | (User['User_name'] == nametext2.get()), ('User_withdrawcheck'))
                 if (Search['User_rentcnt'] >= 1 ).any() :
                     messagebox.showinfo("탈퇴 불가능", "대여 중인 회원은 탈퇴가 불가능합니다.")
 
