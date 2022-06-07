@@ -171,7 +171,11 @@ def Member_search() :
         treeview.column("대출권수", width = 100, anchor = CENTER)
         treeview.heading("대출권수", text = "대출권수", anchor = CENTER)
         treeview["show"] = "headings"
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> fb46b1dc382fadaaf754e397e8aa91714b1a91e8
         if (phonetext2.get() == '') & (nametext2.get() == '') :
             return
         elif phonetext2.get() == '' :
@@ -184,7 +188,6 @@ def Member_search() :
         Search = Search.values.tolist()
         for i in range(len(Search)):
             treeview.insert("", "end", text = "", values=Search[i], iid = i)
-
 
         choicebutton = Button(toplevel2, text = "선택")
         choicebutton.bind('<Button>', choice)
@@ -203,7 +206,6 @@ def Member_search() :
             return
 
         Search = User[(User['User_phone'] == selectedphone) & (User['User_name'] == selectedname)]
-
 
         toplevel3 =Toplevel(window)
         toplevel3.geometry("700x500")
