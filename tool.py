@@ -64,7 +64,7 @@ def Member_make() :
             if (len(birthdaytext.get().replace(" ", "")) <= 7)  :
                 checkbirthday = "생일"
                 count = count + 1
-            elif len(birthdaytext.get().replace(" ", "")) != 10 | (birthdaytext.get().replace(" ", "").count('-') != 2) | (birthdaytext.get().replace(" ", "")[4] != '-') | (birthdaytext.get().replace(" ", "")[7] != '-') | (any(eng2.isalpha() for eng2 in birthdaytext.get().replace(" ", ""))) | (validate_date(birthdaytext.get().replace(" ", "")) == False) | (int((birthdaytext.get().replace(" ", "")[:4])) > 2017) :
+            elif (len(birthdaytext.get().replace(" ", "")) != 10) | (birthdaytext.get().replace(" ", "").count('-') != 2) | (birthdaytext.get().replace(" ", "")[4] != '-') | (birthdaytext.get().replace(" ", "")[7] != '-') | (any(eng2.isalpha() for eng2 in birthdaytext.get().replace(" ", ""))) | (validate_date(birthdaytext.get().replace(" ", "")) == False) | (int((birthdaytext.get().replace(" ", "")[:4])) > 2017) :
                 checkbirthday = "생일"
                 count = count + 1
             if (sextext.get().replace(" ", "") != "남") & (sextext.get().replace(" ", "") != "여") :
@@ -174,6 +174,8 @@ def Member_search() :
         treeview.heading("대출권수", text = "대출권수", anchor = CENTER)
         treeview["show"] = "headings"
         
+
+
         if (phonetext2.get() == '') & (nametext2.get() == '') :
             return
         elif phonetext2.get() == '' :
@@ -186,6 +188,7 @@ def Member_search() :
         Search = Search.values.tolist()
         for i in range(len(Search)):
             treeview.insert("", "end", text = "", values=Search[i], iid = i)
+
 
         choicebutton = Button(toplevel2, text = "선택")
         choicebutton.bind('<Button>', choice)
@@ -204,6 +207,7 @@ def Member_search() :
             return
 
         Search = User[(User['User_phone'] == selectedphone) & (User['User_name'] == selectedname)]
+
 
         toplevel3 =Toplevel(window)
         toplevel3.geometry("700x500")
@@ -581,11 +585,12 @@ def book_search() :
         try :
             selectedISBN = treeview.item(sel).get("values")[1]
             selectedtitle = treeview.item(sel).get("values")[0]
+            chekcISBN = treeview.item(sel).get("values")[2]
         except IndexError :
             messagebox.showinfo("오류", "조회된 정보가 없습니다.")
             return
 
-        Search = Book[(Book['Book_title'] == selectedtitle) & (Book['Book_author'] == selectedISBN)]
+        Search = Book[(Book['Book_title'] == selectedtitle) & (Book['Book_author'] == selectedISBN) & (Book['Book_ISBN'].astype(str) == str(chekcISBN))]
 
         toplevel3 =Toplevel(window) 
         toplevel3.geometry("700x500")
@@ -695,19 +700,20 @@ def book_search() :
                 elif count >= 1 :
                     messagebox.showinfo("잘못된 형식", "{} {} 형식이 잘못되었습니다.".format(checkisbn,checkprice)) 
                 else : 
-                    if Search.iloc[0]['Book_ISBN'] == ISBNtext3.get() :
+                    if str(Search.iloc[0]['Book_ISBN']) == ISBNtext3.get() :
                         messagebox.showinfo("수정 완료", "수정이 완료되었습니다.")
-                        Book.loc[(Book['Book_author'] == selectedISBN) & (Book['Book_title'] == selectedtitle), ('Book_ISBN', 'Book_title', 'Book_pub', 'Book_author', 'Book_price', 'Book_link', 'Book_description')] = [ISBNtext3.get().replace(" ",""), titletext3.get(), pubtext3.get(),authortext3.get().replace(" ",""), pricetext3.get().replace(" ",""), linktext3.get(), descriptiontext3.get()]
+                        Book.loc[(Book['Book_author'] == selectedISBN) & (Book['Book_title'] == selectedtitle) & (Book['Book_ISBN'].astype(str) == str(chekcISBN)), ('Book_ISBN', 'Book_title', 'Book_pub', 'Book_author', 'Book_price', 'Book_link', 'Book_description')] = [ISBNtext3.get().replace(" ",""), titletext3.get(), pubtext3.get(),authortext3.get().replace(" ",""), pricetext3.get().replace(" ",""), linktext3.get(), descriptiontext3.get()]
                         Book.to_csv('BookMake_DF.csv', mode = 'w', header = True, index = False, encoding='utf-8-sig')
                         toplevel3.destroy()
                         toplevel2.destroy()
+                    
 
                     elif ISBNtext3.get() in Book['Book_ISBN'].values.astype(str) :
                         messagebox.showinfo("중복", "중복된 ISBN 번호입니다.")
 
                     else : 
                         messagebox.showinfo("수정 완료", "수정이 완료되었습니다.")
-                        Book.loc[(Book['Book_author'] == selectedISBN) & (Book['Book_title'] == selectedtitle), ('Book_ISBN', 'Book_title', 'Book_pub', 'Book_author', 'Book_price', 'Book_link', 'Book_description')] = [ISBNtext3.get().replace(" ",""), titletext3.get(), pubtext3.get() ,authortext3.get().replace(" ",""), pricetext3.get().replace(" ",""), linktext3.get(), descriptiontext3.get()]
+                        Book.loc[(Book['Book_author'] == selectedISBN) & (Book['Book_title'] == selectedtitle) & (Book['Book_ISBN'].astype(str) == str(chekcISBN)), ('Book_ISBN', 'Book_title', 'Book_pub', 'Book_author', 'Book_price', 'Book_link', 'Book_description')] = [ISBNtext3.get().replace(" ",""), titletext3.get(), pubtext3.get() ,authortext3.get().replace(" ",""), pricetext3.get().replace(" ",""), linktext3.get(), descriptiontext3.get()]
                         Book.to_csv('BookMake_DF.csv', mode = 'w', index = False, header = True, encoding='utf-8-sig')
                         toplevel3.destroy()
                         toplevel2.destroy()
@@ -735,7 +741,7 @@ def book_search() :
             MsgBox = messagebox.askquestion ('삭제 확인','삭제하시겠습니까??')
             if MsgBox == 'yes':
                 if (Search['Book_rentcheck'] == 'X').any() :
-                    Clear = Book[(Book['Book_author'] == selectedISBN) & (Book['Book_title'] == selectedtitle)].index
+                    Clear = Book[(Book['Book_author'] == selectedISBN) & (Book['Book_title'] == selectedtitle) & (Book['Book_ISBN'].astype(str) == str(chekcISBN))].index
                     Book.drop(Clear, inplace = True)
                     Book.to_csv('BookMake_DF.csv', mode = 'w', index = False, header = True, encoding='utf-8-sig')
                     messagebox.showinfo("삭제 완료", "삭제가 완료되었습니다.")
@@ -912,17 +918,22 @@ def Rent_make() :
             try :
                 selectedISBN = treeview.item(sel).get("values")[1]
                 selectedtitle = treeview.item(sel).get("values")[0]
+                chekcISBN = treeview.item(sel).get("values")[2]
             except IndexError :
                 messagebox.showinfo("오류", "조회된 정보가 없습니다.")
                 return
-        
-            Book_Search = Book[(Book['Book_title'] == selectedtitle) & (Book['Book_author'] == selectedISBN) & (Book['Book_ISBN'].astype(str) == str(ISBN))]
+
+            
+            Book_Search = Book[(Book['Book_title'] == selectedtitle) & (Book['Book_author'] == selectedISBN) & (Book['Book_ISBN'].astype(str) == str(chekcISBN))]
+
             if (Book_Search['Book_rentcheck'] == 'O').any() :
                 Rent_Search = Rent[(Rent['Book_author'] == selectedISBN) ]
+
                 User_Search = User[(User['User_phone']) == selectedphone]
 
             else :
                 User_Search = User[(User['User_phone'] == selectedphone) & (User['User_name'] == selectedname)]
+
             toplevel2.destroy()
             toplevel3 =Toplevel(window)
             toplevel3.geometry("700x500")
@@ -1041,7 +1052,7 @@ def Rent_make() :
                             seq_max = Rent['Rent_seq'].max()
                             Rent.loc[seq_max+1] = [seq_max+1, selectedISBN, selectedphone, today, today+returnday, 'O']
                         
-                        Book.loc[(Book['Book_author'] == selectedISBN) & (Book['Book_title'] == selectedtitle), ('Book_rentcheck')] = "O"
+                        Book.loc[(Book['Book_author'] == selectedISBN) & (Book['Book_title'] == selectedtitle) & (Book['Book_ISBN'].astype(str) == str(chekcISBN)), ('Book_rentcheck')] = "O"
                         User.loc[(User['User_phone'] == selectedphone) & (User['User_name'] == selectedname), ('User_rentcnt')] += 1
                         
                         Rent.to_csv('RentMake_DF.csv', mode = 'w', index = False ,header = True, encoding='utf-8-sig')
@@ -1144,11 +1155,12 @@ def Rent_check() :
         try :
             selectedISBN = treeview.item(sel).get("values")[1]
             selectedtitle = treeview.item(sel).get("values")[0]
+            chekcISBN = treeview.item(sel).get("values")[2]
         except IndexError :
             messagebox.showinfo("오류", "조회된 정보가 없습니다.")
             return
 
-        Book_Search = Book[(Book['Book_author'] == selectedISBN) & (Book['Book_title'] == selectedtitle)]
+        Book_Search = Book[(Book['Book_author'] == selectedISBN) & (Book['Book_title'] == selectedtitle) &(Book['Book_ISBN'].astype(str) == str(chekcISBN)) ]
         Rent_Search = Rent[(Rent['Book_author']) == selectedISBN]
 
         if (Book_Search['Book_rentcheck'] == 'O').any() :
@@ -1268,7 +1280,7 @@ def Rent_check() :
                 else :
                     messagebox.showinfo("반납 완료", "반납이 완료되었습니다.")
                 
-                    Book.loc[(Book['Book_author'] == selectedISBN) & (Book['Book_title'] == selectedtitle), ('Book_rentcheck')] = "X"
+                    Book.loc[(Book['Book_author'] == selectedISBN) & (Book['Book_title'] == selectedtitle) & (Book['Book_ISBN'].astype(str) == str(chekcISBN)), ('Book_rentcheck')] = "X"
                     User.loc[(User['User_phone']) == ",".join(Rent_Search['User_phone']), ('User_rentcnt')] -= 1
 
                     Rent.drop(Rent_Search.index, inplace = True)
