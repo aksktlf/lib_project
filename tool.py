@@ -914,7 +914,7 @@ def Rent_make() :
                 messagebox.showinfo("오류", "조회된 정보가 없습니다.")
                 return
         
-            Book_Search = Book[(Book['Book_title'] == selectedtitle) & (Book['Book_author'] == selectedISBN)]
+            Book_Search = Book[(Book['Book_title'] == selectedtitle) & (Book['Book_author'] == selectedISBN) & (Book['Book_ISBN'].astype(str) == str(ISBN))]
             if (Book_Search['Book_rentcheck'] == 'O').any() :
                 Rent_Search = Rent[(Rent['Book_author'] == selectedISBN) ]
                 User_Search = User[(User['User_phone']) == selectedphone]
